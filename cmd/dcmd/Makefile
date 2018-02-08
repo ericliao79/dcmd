@@ -3,7 +3,7 @@ BINARY=dcmd
 # Builds the project
 build:
 		go build -ldflags "-X main.Version=${VERSION}" -o ${BINARY}
-# go test -v
+		go test -v
 # Installs our project: copies binaries
 install:
 		go install
