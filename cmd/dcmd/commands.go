@@ -14,9 +14,8 @@ func initCommands() []cli.Command {
 		},
 		{
 			Name:    "up",
-			Aliases: []string{"u"},
 			Usage:   "up your containers.",
-			//Action:  initialize,
+			Action:  up,
 		},
 		{
 			Name:    "ls",
@@ -24,14 +23,9 @@ func initCommands() []cli.Command {
 			Action:  list,
 		},
 		{
-			Name:    "show",
-			Usage:   "shows a list of your services",
-			Action:  list,
-		},
-		{
 			Name:    "stop",
 			Usage:   "stop your all containers.",
-			//Action:  initialize,
+			Action:  stop,
 		},
 	}
 }

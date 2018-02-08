@@ -6,7 +6,7 @@ import (
 )
 
 var (
-
+	Version = dcmd.Version
 	logo    = `
 
  V%s
@@ -14,5 +14,5 @@ var (
 )
 
 func displayLogo() {
-	color.Cyan(logo, dcmd.Version)
+	color.Cyan(logo, Version)
 }

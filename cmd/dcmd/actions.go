@@ -8,8 +8,10 @@ import (
 	cli "gopkg.in/urfave/cli.v1"
 	"github.com/ericliao79/dcmd"
 	"github.com/fatih/color"
+	"github.com/c-bata/go-prompt"
 )
 
+//Create dcmd config
 func initialize(c *cli.Context) error {
 	//check Config dir
 	if _, err := dcmd.IsEmpty(dcmd.StorePath); !os.IsNotExist(err) {
@@ -45,13 +47,38 @@ func initialize(c *cli.Context) error {
 	return nil
 }
 
+func up(c *cli.Context) error {
+	if c.NArg() > 0 {
+		c := c.Args().Get(0)
+		composes := dcmd.LoadComposes()
+		if _ , ok := composes[c]; ok {
+			dcmd.Start(c)
+		}
+	} else {
+		color.White("Please select Project.")
+		t := prompt.Input("> ", completer)
+		if len(t) > 0 {
+		} else {
+			color.Red("%s Please select Project.", dcmd.CrossSymbol)
+		}
+	}
+
+	return nil
+}
+
 func list(c *cli.Context) error {
 	composes := dcmd.LoadComposes()
 
 	color.Green("Found %d Docker-compose(s)!", len(composes))
-	fmt.Println("")
+	color.White("")
 	for _, data := range composes {
-		color.Green("%s" + data, ">  ")
+		color.Green("%s"+data, ">  ")
 	}
+	return nil
+}
+
+func stop(c *cli.Context) error {
+	dcmd.Stop()
+
 	return nil
 }
