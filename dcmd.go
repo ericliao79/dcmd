@@ -4,12 +4,13 @@ import (
 	"os"
 	"io"
 	"fmt"
+	"strings"
+	"os/exec"
+	"io/ioutil"
 	"path/filepath"
 	"encoding/json"
-	"io/ioutil"
-	"os/exec"
+
 	"github.com/fatih/color"
-	"strings"
 )
 
 const (
@@ -29,10 +30,7 @@ var (
 	StorePath = filepath.Join(os.Getenv("HOME"), ".dcmd")
 )
 
-type Config struct {
-	PATH string `json:"dockerPath"`
-}
-
+//check config is empty.
 func IsEmpty(path string) (bool, error) {
 	f, err := os.Open(path)
 	if err != nil {
