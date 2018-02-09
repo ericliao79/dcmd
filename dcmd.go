@@ -104,7 +104,6 @@ func LoadComposes() map[string]string {
 
 func Start(s string) {
 	composes := GetComposePath()
-
 	runCmd("docker-compose", composes.PATH+"/"+s, down)
 	runCmd("docker-compose", composes.PATH+"/"+s, up, "-d", "mysql", "nginx", "redis", "php-fpm", "workspace")
 }
