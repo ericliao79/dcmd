@@ -13,19 +13,19 @@ func initCommands() []cli.Command {
 			Action:  initialize,
 		},
 		{
-			Name:    "up",
-			Usage:   "up your containers.",
-			Action:  up,
+			Name:   "up",
+			Usage:  "up your containers.",
+			Action: up,
 		},
 		{
-			Name:    "ls",
-			Usage:   "shows a list of your services",
-			Action:  list,
+			Name:   "ls",
+			Usage:  "shows a list of your services",
+			Action: list,
 		},
 		{
-			Name:    "stop",
-			Usage:   "stop your all containers.",
-			Action:  stop,
+			Name:   "stop",
+			Usage:  "stop your all containers.",
+			Action: stop,
 		},
 	}
 }

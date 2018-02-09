@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/fatih/color"
 	"github.com/ericliao79/dcmd"
+	"github.com/fatih/color"
 )
 
 var (

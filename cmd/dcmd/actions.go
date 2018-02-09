@@ -1,14 +1,13 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"bufio"
-
-	cli "gopkg.in/urfave/cli.v1"
+	"fmt"
+	"github.com/c-bata/go-prompt"
 	"github.com/ericliao79/dcmd"
 	"github.com/fatih/color"
-	"github.com/c-bata/go-prompt"
+	cli "gopkg.in/urfave/cli.v1"
+	"os"
 )
 
 //Create dcmd config

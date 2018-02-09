@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	cli "gopkg.in/urfave/cli.v1"
 	"github.com/ericliao79/dcmd"
+	cli "gopkg.in/urfave/cli.v1"
 )
 
 func main() {

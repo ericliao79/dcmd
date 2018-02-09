@@ -1,14 +1,14 @@
 package dcmd
 
 import (
-	"os"
-	"io"
-	"fmt"
-	"strings"
-	"os/exec"
-	"io/ioutil"
-	"path/filepath"
 	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 
 	"github.com/fatih/color"
 )
