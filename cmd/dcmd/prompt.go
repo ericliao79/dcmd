@@ -10,7 +10,7 @@ func completer(d prompt.Document) []prompt.Suggest {
 	var s []prompt.Suggest
 
 	for _, data := range composes  {
-		s = append(s, prompt.Suggest{Text: data, Description: ""})
+		s = append(s, prompt.Suggest{Text: data, Description: data})
 	}
 
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
