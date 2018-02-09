@@ -82,6 +82,7 @@ func SetConfig(p string) (int, error) {
 	return s, nil
 }
 
+//load all Composes
 func LoadComposes() map[string]string {
 	keys := map[string]string{}
 	var c Config
@@ -102,12 +103,14 @@ func LoadComposes() map[string]string {
 	return keys
 }
 
+//up docker containers
 func Start(s string) {
 	composes := GetComposePath()
 	runCmd("docker-compose", composes.PATH+"/"+s, down)
 	runCmd("docker-compose", composes.PATH+"/"+s, up, "-d", "mysql", "nginx", "redis", "php-fpm", "workspace")
 }
 
+//stop all containers
 func Stop() {
 	//docker stop $(docker ps -q); cd -;
 	cmd := exec.Command("docker", "ps", "-q")
@@ -118,7 +121,7 @@ func Stop() {
 		if out == "\n" {
 			cmd := exec.Command("docker", down, temp)
 			o, _ := cmd.Output()
-			color.Green("%s %s stopping", CheckSymbol, strings.Replace(string(o),"\n","",-1))
+			color.Green("%s %s stopping", CheckSymbol, strings.Replace(string(o), "\n", "", -1))
 			temp = ""
 			continue
 		}
