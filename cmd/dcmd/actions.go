@@ -51,14 +51,14 @@ func up(c *cli.Context) error {
 	composes := dcmd.LoadComposes()
 	if c.NArg() > 0 {
 		c := c.Args().Get(0)
-		if _ , ok := composes[c]; ok {
+		if _, ok := composes[c]; ok {
 			dcmd.Start(c)
 		}
 	} else {
 		color.White("Please select Project.")
 		t := prompt.Input("> ", completer)
 		if len(t) > 0 {
-			if _ , ok := composes[t]; ok {
+			if _, ok := composes[t]; ok {
 				dcmd.Start(t)
 			} else {
 				color.Red("%s Please select Project.", dcmd.CrossSymbol)

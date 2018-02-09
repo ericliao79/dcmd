@@ -7,7 +7,7 @@ import (
 	"github.com/ericliao79/dcmd"
 )
 
-func main()  {
+func main() {
 	parseArgs()
 	app := cli.NewApp()
 	app.Name = dcmd.Name
