@@ -3,14 +3,13 @@ package dcmd
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/fatih/color"
 	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"github.com/fatih/color"
 )
 
 const (
@@ -23,6 +22,7 @@ const (
 	EditSymbol  = "\u2710 "
 	up          = "up"
 	down        = "stop"
+	Detached    = "-d"
 )
 
 var (
@@ -70,7 +70,7 @@ func SetConfig(p string) (int, error) {
 		PATH: p,
 	}
 
-	b, err := json.Marshal(config)
+	b, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
 		return 0, err
 	}
@@ -106,8 +106,9 @@ func LoadComposes() map[string]string {
 //up docker containers
 func Start(s string) {
 	composes := GetComposePath()
+	args := append([]string{up, Detached}, composes.GetService(s).Service...)
 	runCmd("docker-compose", composes.PATH+"/"+s, down)
-	runCmd("docker-compose", composes.PATH+"/"+s, up, "-d", "mysql", "nginx", "redis", "php-fpm", "workspace")
+	runCmd("docker-compose", composes.PATH+"/"+s, args...)
 }
 
 //stop all containers
