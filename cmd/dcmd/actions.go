@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/c-bata/go-prompt"
 	"github.com/ericliao79/dcmd"
 	"github.com/fatih/color"
 	cli "gopkg.in/urfave/cli.v1"
@@ -12,10 +11,11 @@ import (
 
 //Create dcmd config
 func initialize(c *cli.Context) error {
+	var service []string
+	var con []dcmd.Container
 	//check Config dir
 	if _, err := dcmd.IsEmpty(dcmd.StorePath); !os.IsNotExist(err) {
-		err := os.Remove(dcmd.StorePath)
-
+		err := os.RemoveAll(dcmd.StorePath)
 		if err != nil {
 			color.Red("%sFailed to remove existing empty store!", dcmd.CrossSymbol)
 			return nil
@@ -33,16 +33,35 @@ func initialize(c *cli.Context) error {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	path := scanner.Text()
-	if scanner.Err() != nil {
-		// handle error.
+
+	composes := dcmd.LoadComposes(path)
+	prompt := getSelect("Do you want set compose?", composes)
+	_, result, _ := prompt.Run()
+
+	services := dcmd.LoadComposeYaml(path, result)
+	services["Exit"] = "Exit."
+	for {
+		prompt = getSelect("What is you want add service? select Exit. goto Next", services)
+		_, ser, _ := prompt.Run()
+		delete(services, ser)
+		if ser == "Exit." {
+			break
+		} else {
+			service = append(service, ser)
+		}
 	}
-	if _, err := dcmd.SetConfig(path); err != nil {
+
+	con = append(con, dcmd.Container{
+		Name:    result,
+		Service: service,
+	})
+
+	if _, err := dcmd.SetConfig(path, &con); err != nil {
 		color.Red("%sFailed to initialize Config", dcmd.CrossSymbol)
 		return nil
 	}
 
 	color.Green("%sCongratulations. Initialized done. ", dcmd.CheckSymbol)
-
 	return nil
 }
 
@@ -54,11 +73,16 @@ func up(c *cli.Context) error {
 			dcmd.Start(c)
 		}
 	} else {
-		color.White("Please select Project.")
-		t := prompt.Input("> ", completer)
-		if len(t) > 0 {
-			if _, ok := composes[t]; ok {
-				dcmd.Start(t)
+		prompt := getSelect("Please select Project.", composes)
+		_, result, err := prompt.Run()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return nil
+		}
+
+		if len(result) > 0 {
+			if _, ok := composes[result]; ok {
+				dcmd.Start(result)
 			} else {
 				color.Red("%s Please select Project.", dcmd.CrossSymbol)
 			}
