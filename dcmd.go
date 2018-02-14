@@ -115,7 +115,11 @@ func LoadComposes(s ...string) map[string]string {
 //up docker containers
 func Start(s string) {
 	composes := GetComposePath()
-	args := append([]string{up, Detached}, composes.GetService(s).Service...)
+	l := composes.GetService(s).Service
+	if len(l) > 0 {
+		color.Green("Start services from config.")
+	}
+	args := append([]string{up, Detached}, l...)
 	runCmd("docker-compose", composes.PATH+"/"+s, down)
 	runCmd("docker-compose", composes.PATH+"/"+s, args...)
 }
