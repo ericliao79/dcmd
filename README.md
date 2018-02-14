@@ -13,5 +13,5 @@ Docker-composer management tools
 [8]: https://goreportcard.com/report/github.com/ericliao79/dcmd
 [9]: https://godoc.org/github.com/ericliao79/dcmd?status.svg
 [10]: https://godoc.org/github.com/ericliao79/dcmd
-[11]: https://img.shields.io/badge/gocover.io-0%25-green.svg
+[11]: https://img.shields.io/badge/gocover.io-26.3%25-green.svg
 [12]: https://gocover.io/github.com/ericliao79/dcmd
