@@ -14,21 +14,21 @@ func initialize(c *cli.Context) error {
 	var service []string
 	var con []dcmd.Container
 	//check Config dir
-	if _, err := dcmd.IsEmpty(dcmd.StorePath); !os.IsNotExist(err) {
-		err := os.RemoveAll(dcmd.StorePath)
+	if _, err := dcmd.IsEmpty(dcmd.MyAppConfig.StorePath); !os.IsNotExist(err) {
+		err := os.RemoveAll(dcmd.MyAppConfig.StorePath)
 		if err != nil {
-			color.Red("%sFailed to remove existing empty store!", dcmd.CrossSymbol)
+			color.Red("%sFailed to remove existing empty store!", dcmd.MyAppConfig.CrossSymbol)
 			return nil
 		}
 	}
 
-	err := os.Mkdir(dcmd.StorePath, 0755)
+	err := os.Mkdir(dcmd.MyAppConfig.StorePath, 0755)
 	if err != nil {
-		color.Red("%sFailed to initialize Config", dcmd.CrossSymbol)
+		color.Red("%sFailed to initialize Config", dcmd.MyAppConfig.CrossSymbol)
 		return nil
 	}
 
-	color.Blue("%sWhere is your docker-compose path?", dcmd.EditSymbol)
+	color.Blue("%sWhere is your docker-compose path?", dcmd.MyAppConfig.EditSymbol)
 	fmt.Printf("> ")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -57,11 +57,11 @@ func initialize(c *cli.Context) error {
 	})
 
 	if _, err := dcmd.SetConfig(path, &con); err != nil {
-		color.Red("%sFailed to initialize Config", dcmd.CrossSymbol)
+		color.Red("%sFailed to initialize Config", dcmd.MyAppConfig.CrossSymbol)
 		return nil
 	}
 
-	color.Green("%sCongratulations. Initialized done. ", dcmd.CheckSymbol)
+	color.Green("%sCongratulations. Initialized done. ", dcmd.MyAppConfig.CheckSymbol)
 	return nil
 }
 
@@ -84,10 +84,10 @@ func up(c *cli.Context) error {
 			if _, ok := composes[result]; ok {
 				dcmd.Start(result)
 			} else {
-				color.Red("%s Please select Project.", dcmd.CrossSymbol)
+				color.Red("%s Please select Project.", dcmd.MyAppConfig.CrossSymbol)
 			}
 		} else {
-			color.Red("%s Please select Project.", dcmd.CrossSymbol)
+			color.Red("%s Please select Project.", dcmd.MyAppConfig.CrossSymbol)
 		}
 	}
 

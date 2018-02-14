@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	Version = dcmd.Version
+	Version = dcmd.MyAppConfig.Version
 	logo    = `
 
  V%s

@@ -10,10 +10,10 @@ import (
 func main() {
 	parseArgs()
 	app := cli.NewApp()
-	app.Name = dcmd.Name
-	app.Usage = dcmd.Usage
+	app.Name = dcmd.MyAppConfig.Name
+	app.Usage = dcmd.MyAppConfig.Usage
 	app.Commands = initCommands()
-	app.Version = dcmd.Version
+	app.Version = dcmd.MyAppConfig.Version
 
 	app.Run(os.Args)
 }
