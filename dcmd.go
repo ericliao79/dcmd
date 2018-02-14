@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/fatih/color"
+	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"os"
@@ -13,21 +14,34 @@ import (
 )
 
 const (
-	Name        = "Dcmd"
-	Usage       = "fast do docker-compose something"
-	Version     = "0.0.1"
-	ConfigName  = "/config.json"
-	CheckSymbol = "\u2714 "
-	CrossSymbol = "\u2716 "
-	EditSymbol  = "\u2710 "
+	name        = "Dcmd"
+	usage       = "fast do docker-compose something"
+	version     = "0.0.1"
+	configName  = "/config.json"
+	checkSymbol = "\u2714 "
+	crossSymbol = "\u2716 "
+	editSymbol  = "\u2710 "
 	up          = "up"
 	down        = "stop"
-	Detached    = "-d"
+	detached    = "-d"
+	yamlName    = "/docker-compose.yml"
 )
 
 var (
-	// StorePath is the default dcmd config
-	StorePath = filepath.Join(os.Getenv("HOME"), ".dcmd")
+	MyAppConfig = AppConfig{
+		Name:        name,
+		Usage:       usage,
+		Version:     version,
+		ConfigName:  configName,
+		CheckSymbol: checkSymbol,
+		CrossSymbol: crossSymbol,
+		EditSymbol:  editSymbol,
+		up:          up,
+		down:        down,
+		Detached:    detached,
+		yamlName:    yamlName,
+		StorePath:   filepath.Join(os.Getenv("HOME"), ".dcmd"),
+	}
 )
 
 //check config is empty.
@@ -46,28 +60,27 @@ func IsEmpty(path string) (bool, error) {
 }
 
 //Get Docker-composes path
-func GetComposePath() Config {
+func GetComposePath() (Config, error) {
 	var c Config
-	raw, err := ioutil.ReadFile(StorePath + ConfigName)
+	raw, err := ioutil.ReadFile(MyAppConfig.StorePath + MyAppConfig.ConfigName)
 	if err != nil {
-		fmt.Println(err.Error())
+		return c, err
 	}
-
 	json.Unmarshal(raw, &c)
-
-	return c
+	return c, nil
 }
 
 //set Docker-composes path into Config
-func SetConfig(p string) (int, error) {
-	f, err := os.Create(StorePath + ConfigName)
+func SetConfig(p string, con *[]Container) (int, error) {
+	f, err := os.Create(MyAppConfig.StorePath + MyAppConfig.ConfigName)
 	defer f.Close()
 	if err != nil {
 		return 0, err
 	}
 
 	config := Config{
-		PATH: p,
+		PATH:       p,
+		CONTAINERS: *con,
 	}
 
 	b, err := json.MarshalIndent(config, "", "  ")
@@ -83,13 +96,17 @@ func SetConfig(p string) (int, error) {
 }
 
 //load all Composes
-func LoadComposes() map[string]string {
+func LoadComposes(s ...string) map[string]string {
 	keys := map[string]string{}
-	var c Config
+	var path string
+	if len(s) > 0 {
+		path = s[0]
+	} else {
+		g, _ := GetComposePath()
+		path = g.PATH
+	}
 
-	c = GetComposePath()
-
-	list, error := ioutil.ReadDir(c.PATH)
+	list, error := ioutil.ReadDir(path)
 	if error != nil {
 		fmt.Println(error.Error())
 	}
@@ -105,8 +122,12 @@ func LoadComposes() map[string]string {
 
 //up docker containers
 func Start(s string) {
-	composes := GetComposePath()
-	args := append([]string{up, Detached}, composes.GetService(s).Service...)
+	composes, _ := GetComposePath()
+	l := composes.GetService(s).Service
+	if len(l) > 0 {
+		color.Green("Start services from config.")
+	}
+	args := append([]string{up, MyAppConfig.Detached}, l...)
 	runCmd("docker-compose", composes.PATH+"/"+s, down)
 	runCmd("docker-compose", composes.PATH+"/"+s, args...)
 }
@@ -122,7 +143,7 @@ func Stop() {
 		if out == "\n" {
 			cmd := exec.Command("docker", down, temp)
 			o, _ := cmd.Output()
-			color.Green("%s %s stopping", CheckSymbol, strings.Replace(string(o), "\n", "", -1))
+			color.Green("%s %s stopping", MyAppConfig.CheckSymbol, strings.Replace(string(o), "\n", "", -1))
 			temp = ""
 			continue
 		}
@@ -138,4 +159,18 @@ func runCmd(name string, path string, arg ...string) *exec.Cmd {
 	cmd.Dir = path
 	cmd.Run()
 	return cmd
+}
+
+//
+func LoadComposeYaml(path string, proj string) map[string]string {
+	var y DockerYAML
+	services := map[string]string{}
+
+	raw, _ := ioutil.ReadFile(path + "/" + proj + yamlName)
+	yaml.Unmarshal(raw, &y)
+	for k := range y.Services {
+		services[k] = k
+	}
+
+	return services
 }

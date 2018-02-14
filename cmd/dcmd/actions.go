@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/c-bata/go-prompt"
 	"github.com/ericliao79/dcmd"
 	"github.com/fatih/color"
 	cli "gopkg.in/urfave/cli.v1"
@@ -12,37 +11,57 @@ import (
 
 //Create dcmd config
 func initialize(c *cli.Context) error {
+	var service []string
+	var con []dcmd.Container
 	//check Config dir
-	if _, err := dcmd.IsEmpty(dcmd.StorePath); !os.IsNotExist(err) {
-		err := os.Remove(dcmd.StorePath)
-
+	if _, err := dcmd.IsEmpty(dcmd.MyAppConfig.StorePath); !os.IsNotExist(err) {
+		err := os.RemoveAll(dcmd.MyAppConfig.StorePath)
 		if err != nil {
-			color.Red("%sFailed to remove existing empty store!", dcmd.CrossSymbol)
+			color.Red("%sFailed to remove existing empty store!", dcmd.MyAppConfig.CrossSymbol)
 			return nil
 		}
 	}
 
-	err := os.Mkdir(dcmd.StorePath, 0755)
+	err := os.Mkdir(dcmd.MyAppConfig.StorePath, 0755)
 	if err != nil {
-		color.Red("%sFailed to initialize Config", dcmd.CrossSymbol)
+		color.Red("%sFailed to initialize Config", dcmd.MyAppConfig.CrossSymbol)
 		return nil
 	}
 
-	color.Blue("%sWhere is your docker-compose path?", dcmd.EditSymbol)
+	color.Blue("%sWhere is your docker-compose path?", dcmd.MyAppConfig.EditSymbol)
 	fmt.Printf("> ")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	path := scanner.Text()
-	if scanner.Err() != nil {
-		// handle error.
+
+	composes := dcmd.LoadComposes(path)
+	prompt := getSelect("Do you want set compose?", composes)
+	_, result, _ := prompt.Run()
+
+	services := dcmd.LoadComposeYaml(path, result)
+	services["Exit"] = "Exit."
+	for {
+		prompt = getSelect("What is you want add service? select Exit. goto Next", services)
+		_, ser, _ := prompt.Run()
+		delete(services, ser)
+		if ser == "Exit." {
+			break
+		} else {
+			service = append(service, ser)
+		}
 	}
-	if _, err := dcmd.SetConfig(path); err != nil {
-		color.Red("%sFailed to initialize Config", dcmd.CrossSymbol)
+
+	con = append(con, dcmd.Container{
+		Name:    result,
+		Service: service,
+	})
+
+	if _, err := dcmd.SetConfig(path, &con); err != nil {
+		color.Red("%sFailed to initialize Config", dcmd.MyAppConfig.CrossSymbol)
 		return nil
 	}
 
-	color.Green("%sCongratulations. Initialized done. ", dcmd.CheckSymbol)
-
+	color.Green("%sCongratulations. Initialized done. ", dcmd.MyAppConfig.CheckSymbol)
 	return nil
 }
 
@@ -54,16 +73,21 @@ func up(c *cli.Context) error {
 			dcmd.Start(c)
 		}
 	} else {
-		color.White("Please select Project.")
-		t := prompt.Input("> ", completer)
-		if len(t) > 0 {
-			if _, ok := composes[t]; ok {
-				dcmd.Start(t)
+		prompt := getSelect("Please select Project.", composes)
+		_, result, err := prompt.Run()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return nil
+		}
+
+		if len(result) > 0 {
+			if _, ok := composes[result]; ok {
+				dcmd.Start(result)
 			} else {
-				color.Red("%s Please select Project.", dcmd.CrossSymbol)
+				color.Red("%s Please select Project.", dcmd.MyAppConfig.CrossSymbol)
 			}
 		} else {
-			color.Red("%s Please select Project.", dcmd.CrossSymbol)
+			color.Red("%s Please select Project.", dcmd.MyAppConfig.CrossSymbol)
 		}
 	}
 
