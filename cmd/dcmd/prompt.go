@@ -1,17 +1,18 @@
 package main
 
 import (
-	"github.com/c-bata/go-prompt"
-	"github.com/ericliao79/dcmd"
+	"github.com/manifoldco/promptui"
 )
 
-func completer(d prompt.Document) []prompt.Suggest {
-	composes := dcmd.LoadComposes()
-	var s []prompt.Suggest
-
-	for _, data := range composes {
-		s = append(s, prompt.Suggest{Text: data, Description: data})
+func getSelect(label string, s map[string]string) promptui.Select {
+	v := make([]string, 0, len(s))
+	for _, value := range s {
+		v = append(v, value)
+	}
+	prompt := promptui.Select{
+		Label: label,
+		Items: v,
 	}
 
-	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+	return prompt
 }

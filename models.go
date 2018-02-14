@@ -18,3 +18,12 @@ func (c *Config) GetService(s string) *Container {
 	}
 	return nil
 }
+
+type DockerYAML struct {
+	Version  string
+	Services map[string]interface{} `yaml:"services"`
+	Networks map[string]interface{} `yaml:"networks"`
+	Volumes  map[string]interface{} `yaml:"volumes"`
+}
+
+//type services map[string]string

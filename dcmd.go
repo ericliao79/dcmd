@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/fatih/color"
+	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"os"
@@ -23,6 +24,7 @@ const (
 	up          = "up"
 	down        = "stop"
 	Detached    = "-d"
+	yamlName    = "/docker-compose.yml"
 )
 
 var (
@@ -59,7 +61,10 @@ func GetComposePath() Config {
 }
 
 //set Docker-composes path into Config
-func SetConfig(p string) (int, error) {
+func SetConfig(p string, con *[]Container) (int, error) {
+	//fmt.Println(con[].Name)
+	//return 1, nil
+
 	f, err := os.Create(StorePath + ConfigName)
 	defer f.Close()
 	if err != nil {
@@ -67,7 +72,8 @@ func SetConfig(p string) (int, error) {
 	}
 
 	config := Config{
-		PATH: p,
+		PATH:       p,
+		CONTAINERS: *con,
 	}
 
 	b, err := json.MarshalIndent(config, "", "  ")
@@ -83,13 +89,16 @@ func SetConfig(p string) (int, error) {
 }
 
 //load all Composes
-func LoadComposes() map[string]string {
+func LoadComposes(s ...string) map[string]string {
 	keys := map[string]string{}
-	var c Config
+	var path string
+	if len(s) > 0 {
+		path = s[0]
+	} else {
+		path = GetComposePath().PATH
+	}
 
-	c = GetComposePath()
-
-	list, error := ioutil.ReadDir(c.PATH)
+	list, error := ioutil.ReadDir(path)
 	if error != nil {
 		fmt.Println(error.Error())
 	}
@@ -106,7 +115,11 @@ func LoadComposes() map[string]string {
 //up docker containers
 func Start(s string) {
 	composes := GetComposePath()
-	args := append([]string{up, Detached}, composes.GetService(s).Service...)
+	l := composes.GetService(s).Service
+	if len(l) > 0 {
+		color.Green("Start services from config.")
+	}
+	args := append([]string{up, Detached}, l...)
 	runCmd("docker-compose", composes.PATH+"/"+s, down)
 	runCmd("docker-compose", composes.PATH+"/"+s, args...)
 }
@@ -138,4 +151,18 @@ func runCmd(name string, path string, arg ...string) *exec.Cmd {
 	cmd.Dir = path
 	cmd.Run()
 	return cmd
+}
+
+//
+func LoadComposeYaml(path string, proj string) map[string]string {
+	var y DockerYAML
+	services := map[string]string{}
+
+	raw, _ := ioutil.ReadFile(path + "/" + proj + yamlName)
+	yaml.Unmarshal(raw, &y)
+	for k := range y.Services {
+		services[k] = k
+	}
+
+	return services
 }
