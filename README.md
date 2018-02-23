@@ -15,3 +15,14 @@ Docker-composer management tools
 [10]: https://godoc.org/github.com/ericliao79/dcmd
 [11]: https://img.shields.io/badge/gocover.io-26.3%25-green.svg
 [12]: https://gocover.io/github.com/ericliao79/dcmd
+
+## Install
+```
+go get -u github.com/ericliao79/dcmd/cmd/dcmd
+```
+
+## Futures
+- full docker-compose cmd
+
+## TODO
+- [ ] Notification
